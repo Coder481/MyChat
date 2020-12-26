@@ -8,5 +8,6 @@
 * Adding `Recycler View` to show messages
 * User can add multiple contacts and can chat with them 
 
-*Note: Stay connected. New version comming soon*
+*Note: Stay connected. New version comming soon.
+       Your feedback helps a lot to improve so feel free to give feedback *
 
