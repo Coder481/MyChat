@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:title="@string/delete_contact"
+        android:id="@+id/delete_contact_btn"
+        app:showAsAction="never"/>
+
+    <item
+        android:title="@string/signout"
+        android:id="@+id/signout_btn"
+        android:icon="@drawable/ic_signout_icon"
+        app:showAsAction="never"/>
+
+    <item
+        android:title="@string/add_new_contact"
+        android:id="@+id/add_newuser_btn"
+        android:icon="@drawable/ic_add_user_icon"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:title="@string/refresh"
+        android:id="@+id/refresh_btn"
+        android:icon="@drawable/ic_refresh_icon"
+        app:showAsAction="ifRoom"
+        android:visible="false"/>
+
+
+</menu>

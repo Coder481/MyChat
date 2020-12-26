@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">My Chat</string>
+    <string name="sign_in_with_phone">Sign in with phone</string>
+    <string name="continue_btn">CONTINUE</string>
+    <string name="signout">SIGNOUT</string>
+    <string name="add_new_contact">Add new contact</string>
+    <string name="refresh">refresh</string>
+    <string name="delete_contact">Delete Contact</string>
+</resources>
