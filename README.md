@@ -8,4 +8,4 @@
 * Adding `Recycler View` to show messages
 * User can add multiple contacts and can chat with them 
 
-#### Note: New version comming soon
+*Note: Stay updated. New version comming soon*
