@@ -8,6 +8,10 @@
         app:showAsAction="never"/>
 
     <item
+        android:title="Share app"
+        android:id="@+id/share_btn"
+        app:showAsAction="never"/>
+    <item
         android:title="@string/signout"
         android:id="@+id/signout_btn"
         android:icon="@drawable/ic_signout_icon"

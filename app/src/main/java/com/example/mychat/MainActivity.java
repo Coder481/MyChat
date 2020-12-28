@@ -121,6 +121,13 @@ public class MainActivity extends AppCompatActivity {
             case R.id.delete_contact_btn:
                 showDeleteContactDialog();
                 return true;
+            case R.id.share_btn:
+                try {
+                    shareApk();
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -269,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
         Uri uri = Uri.parse(filePath);
         sharingIntent.setType("*/*");
         sharingIntent.putExtra(Intent.EXTRA_STREAM,uri);
-        sharingIntent.putExtra(Intent.EXTRA_TEXT,"");
+        sharingIntent.putExtra(Intent.EXTRA_TEXT,"Click on the link to download apk  https://github.com/Coder481/MyChat/releases/download/Latest/app-debug.apk");
         startActivity(Intent.createChooser(sharingIntent,"Share app using"));
         //File file = new File();
 

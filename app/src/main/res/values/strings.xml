@@ -6,4 +6,5 @@
     <string name="add_new_contact">Add new contact</string>
     <string name="refresh">refresh</string>
     <string name="delete_contact">Delete Contact</string>
+    <string name="deleteMessageString"><i><u>This Message Was Deleted</u></i></string>
 </resources>

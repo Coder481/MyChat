@@ -6,9 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -33,6 +36,7 @@ public class MessagingActivity extends AppCompatActivity {
     private List<String> messagesList = new ArrayList<>();
     private MyApp app;
     private String userMobNo;
+    private MessageAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,69 @@ public class MessagingActivity extends AppCompatActivity {
 
         getMessagesFromFirebase();
         setUpSendBtn();
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.delete_message_btn){
+            deleteMessage();
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void deleteMessage() {
+        new AlertDialog.Builder(this)
+                .setTitle("Sure to delete message?")
+                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        String[] strings = messagesList.get(adapter.lastSelectedItemPosition).split("``;;;```&&&#&&@@###");
+                        if (!canMessageBeDelete(strings[1])){
+                            Toast.makeText(MessagingActivity.this, "Message can be deleted within 24 hours", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (strings[0].equals(getString(R.string.deleteMessageString))){
+                            Toast.makeText(MessagingActivity.this, "This message was already deleted", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+
+                        messagesList.remove(adapter.lastSelectedItemPosition);
+                        String str = getString(R.string.deleteMessageString)+"``;;;```&&&#&&@@###"+strings[1]+"``;;;```&&&#&&@@###"+strings[2];
+
+                        messagesList.add(adapter.lastSelectedItemPosition,str);
+                        addMessageListToFirebase(messagesList);
+
+                        adapter.notifyItemChanged(adapter.lastSelectedItemPosition);
+//                        adapter.notifyItemRemoved(adapter.lastSelectedItemPosition);
+                    }
+                })
+                .show();
+    }
+
+    private boolean canMessageBeDelete(String s) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/mm/yyyy hh:mm a");
+        String format = simpleDateFormat.format(new Date());
+        String[] bfrStrings = s.split(" ");
+        String[] aftrStrings = format.split(" ");
+        int bfrHr = Integer.parseInt(bfrStrings[1].split(":")[0])
+                , bfrMin = Integer.parseInt(bfrStrings[1].split(":")[1])
+               , aftHr = Integer.parseInt(aftrStrings[1].split(":")[0])
+                , aftMin = Integer.parseInt(aftrStrings[1].split(":")[1]);
+        if (bfrStrings[2].equals("PM")){
+            bfrHr = bfrHr + 12;
+        }
+        if (aftrStrings[2].equals("PM")){
+            aftHr = aftHr + 12;
+        }
+
+        bfrMin = bfrMin + (bfrHr*60);
+        aftMin = aftMin + (aftHr*60);
+        if (bfrStrings[0].equals(aftrStrings[0]) && aftMin>=bfrMin){
+            return true;
+        }
+        return bfrMin >= aftMin;
     }
 
     private void getMessagesFromFirebase() {
@@ -85,9 +152,13 @@ public class MessagingActivity extends AppCompatActivity {
                 if (message.length() == 0){
                     Toast.makeText(MessagingActivity.this, "Enter text to send!", Toast.LENGTH_SHORT).show();
                 }else{
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a");
+                    if (message.equals(getString(R.string.deleteMessageString))){
+                        Toast.makeText(MessagingActivity.this, "Sorry you can't write this message as this message is same as deleted message", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/mm/yyyy hh:mm a");
                     String format = simpleDateFormat.format(new Date());
-                    messagesList.add(message+"``;;;```&&&#&&@@###"+format);
+                    messagesList.add(message+"``;;;```&&&#&&@@###"+format+"``;;;```&&&#&&@@###"+userMobNo);
                     b.messageEditText.setText("");
                     setUpAdapter();
                     addMessageListToFirebase(messagesList);
@@ -117,13 +188,13 @@ public class MessagingActivity extends AppCompatActivity {
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        Toast.makeText(MessagingActivity.this, "Send!", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(MessagingActivity.this, "Task Done!", Toast.LENGTH_SHORT).show();
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(MessagingActivity.this, "Message can't sent", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(MessagingActivity.this, "Task can't be completed", Toast.LENGTH_SHORT).show();
                                     }
                                 });
 
@@ -133,10 +204,10 @@ public class MessagingActivity extends AppCompatActivity {
     }
 
     private void setUpAdapter() {
-        MessageAdapter adapter = new MessageAdapter(this,messagesList);
+        adapter = new MessageAdapter(this,messagesList,userMobNo);
         b.messageRecyclerView.setAdapter(adapter);
         b.messageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        b.messageRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
+        //b.messageRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
     }
 
     @Override
@@ -147,5 +218,21 @@ public class MessagingActivity extends AppCompatActivity {
         }
 
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.message_activity_options_menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.refresh_messages_btn){
+            getMessagesFromFirebase();
+            Toast.makeText(this, "Refreshed", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
